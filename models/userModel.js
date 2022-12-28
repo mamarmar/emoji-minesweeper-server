@@ -25,12 +25,14 @@ const userSchema = new mongoose.Schema(
         dateJoined: {
             type: Date
         },
-        gamesPlayed: {
-            type: Number
-        },
-        gamesWon: {
-            type: Number
-        },
+        gamesPlayed: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Game'
+        }],
+        gamesWon: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Game'
+        }],
         winPercentage: {
             type: Number
         },
