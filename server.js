@@ -4,6 +4,7 @@ import cors from "cors"
 import mongoose from "mongoose";
 //Import route modules
 import userRoutes from "./routes/user.js";
+import gameRoutes from "./routes/game.js";
 
 dotenv.config();
 
@@ -15,6 +16,7 @@ app.use(express.json());
 app.use(cors());
 //Route modules
 app.use("/user", userRoutes);
+app.use("/game", gameRoutes);
 
 //Connection to Database
 mongoose
