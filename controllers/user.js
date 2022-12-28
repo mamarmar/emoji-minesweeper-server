@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
@@ -108,4 +109,17 @@ export const logout = async (req, res) => {
       res.status(201).json({success: true, message: "Log out successful"})
     }
     //Need to figure out how to destroy token
+  };
+
+//Get specific user by id
+export const getUser = async (req, res) => {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id))
+      return res.status(404).send(`No user with id: ${id}`);
+    try {
+      const user = await userModel.findById(id).populate('gamesPlayed').populate('gamesWon');
+      res.status(200).json(user);
+    } catch (err) {
+      res.status(404).json({ message: err.message });
+    }
   };
