@@ -11,7 +11,7 @@ export const auth = (req, res, next) => {
     }
     try {
         const decoded = jwt.verify(token, process.env.TOKEN_KEY);
-        req.user = decoded;  //req.user is an object that contains current user's id, username and email
+        req.user = decoded;  //req.user is an object that contains current user's id and username
     } catch(err) {
         return res.status(403).send("Invalid token");
     }

@@ -48,7 +48,7 @@ export const signup = async (req, res) => {
       });
       //Create token
       const token = jwt.sign(
-        { user_id: user._id, username, email },
+        { user_id: user._id, username },
         process.env.TOKEN_KEY,
         {
           expiresIn: "1h",
@@ -61,4 +61,51 @@ export const signup = async (req, res) => {
     } catch (err) {
       res.status(401).send(err);
     }
+  };
+
+//Login
+export const login = async (req, res) => {
+    try {
+      //Get user input
+      const { username, password } = req.body;
+      //Validate user input
+      if (!(username && password)) {
+        res.status(400).send("All input is required");
+        return;
+      }
+      //Validate if user exists in database
+      const user = await userModel.findOne({ username });
+      if (user && (await bcrypt.compare(password, user.password))) {
+        //Create token
+        const token = jwt.sign(
+          { user_id: user._id, username },
+          process.env.TOKEN_KEY,
+          {
+            expiresIn: "1h",
+          }
+        );
+        //Save user token
+        user.token = token;
+        //Return user
+        res.status(200).send({user});
+      } else {
+        res.status(400).send("Invalid Credentials");
+      }
+    } catch (err) {
+      res.status(401).send(err);
+    }
+  };
+
+//Logout
+export const logout = async (req, res) => {
+    if (req.headers && req.headers["x-access-token"]) {
+      const token = req.headers["x-access-token"];
+      if (!token) {
+        return res.status(401).res.json({success: false, message: "Authorization failed"})
+      }
+      //Remove token from current user
+      await userModel.findByIdAndUpdate(req.user.user_id, {token:""});
+      res.status(201).json({success: true, message: "Log out successful"})
+    }
+    //Need to figure out how to destroy token
   };
