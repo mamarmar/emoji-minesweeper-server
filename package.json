@@ -1,4 +1,15 @@
 {
+  "type": "module",
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Minesweeper Emoji server",
+  "main": "index.js",
+  "scripts": {
+    "start":"node server.js",
+    "dev": "nodemon server.js"
+  },
+  "author": "Margarita Marmaridou",
+  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
