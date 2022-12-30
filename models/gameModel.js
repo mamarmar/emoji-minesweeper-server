@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 
 const gameSchema = new mongoose.Schema(
     {
+        level: {
+            type: String
+        },
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
