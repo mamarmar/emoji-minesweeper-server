@@ -1,1 +1,1 @@
-# Server for minesweeper emoji
+# Server for emoji minesweeper
