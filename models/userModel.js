@@ -25,18 +25,52 @@ const userSchema = new mongoose.Schema(
         dateJoined: {
             type: Date
         },
-        gamesPlayed: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Game'
-        }],
-        gamesWon: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Game'
-        }],
-        winPercentage: {
+        totalPlayed: {
             type: Number
         },
-        bestTime: {
+        beginnerPlayed: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Game'
+        }],
+        intermediatePlayed: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Game'
+        }],
+        expertPlayed: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Game'
+        }],
+        totalWon: {
+            type: Number
+        },
+        beginnerWon: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Game'
+        }],
+        intermediateWon: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Game'
+        }],
+        expertWon: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Game'
+        }],
+        beginnerWinPercentage: {
+            type: Number
+        },
+        intermediateWinPercentage: {
+            type: Number
+        },
+        expertWinPercentage: {
+            type: Number
+        },
+        beginnerBestTime: {
+            type: Number
+        },
+        intermediateBestTime: {
+            type: Number
+        },
+        expertBestTime: {
             type: Number
         },
         token: {
