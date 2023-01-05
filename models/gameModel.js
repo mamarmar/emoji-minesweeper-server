@@ -13,10 +13,10 @@ const gameSchema = new mongoose.Schema(
             type: Boolean,
             default: false
         },
-        moves: {
+        timeToComplete: {
             type: Number
         },
-        timeToComplete: {
+        moves: {
             type: Number
         }
     }

@@ -75,7 +75,7 @@ export const login = async (req, res) => {
         return;
       }
       //Validate if user exists in database
-      const user = await userModel.findOne({ username });
+      const user = await userModel.findOne({ username }).populate('gamesPlayed').populate('gamesWon');
       if (user && (await bcrypt.compare(password, user.password))) {
         //Create token
         const token = jwt.sign(
@@ -117,9 +117,31 @@ export const getUser = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(id))
       return res.status(404).send(`No user with id: ${id}`);
     try {
-      const user = await userModel.findById(id).populate('beginnerPlayed').populate('intermediatePlayed').populate('expertPlayed');
+      const user = await userModel.findById(id);
       res.status(200).json(user);
     } catch (err) {
       res.status(404).json({ message: err.message });
     }
   };
+
+  //Get player stats
+  export const getPlayerStats = async (req, res) => {
+    const { gameLevel } = req.query;
+    try {
+      const currentPlayer = await userModel.findById(req.user.user_id).populate({path:'gamesPlayed', populate:'beginner'});//How can I populate all levels?
+      const stats = {
+        gamesPlayed: currentPlayer.gamesPlayed[gameLevel].length,
+        gamesWon: currentPlayer.gamesWon[gameLevel].length,
+        winPercentage:  currentPlayer.gamesWon[gameLevel].length / currentPlayer.gamesPlayed[gameLevel].length * 100,
+        bestTime: currentPlayer.bestTime[gameLevel],
+        bestMoves: currentPlayer.bestMoves[gameLevel],
+        // totalTime: "N/A",
+        // totalMoves: "N/A"
+      };
+      res.status(200).send({ stats });
+    } catch (err) {
+      res.status(404).json({ message: err.message });
+    }
+
+
+  }

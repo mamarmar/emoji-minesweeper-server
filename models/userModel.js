@@ -28,50 +28,46 @@ const userSchema = new mongoose.Schema(
         totalPlayed: {
             type: Number
         },
-        beginnerPlayed: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Game'
-        }],
-        intermediatePlayed: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Game'
-        }],
-        expertPlayed: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Game'
-        }],
+        gamesPlayed: {
+            beginner: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Game'
+            }],
+            intermediate: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Game'
+            }],
+            expert: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Game'
+            }]
+        },
         totalWon: {
             type: Number
         },
-        beginnerWon: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Game'
-        }],
-        intermediateWon: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Game'
-        }],
-        expertWon: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Game'
-        }],
-        beginnerWinPercentage: {
-            type: Number
+        gamesWon: {
+            beginner: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Game'
+            }],
+            intermediate: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Game'
+            }],
+            expert: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Game'
+            }]
         },
-        intermediateWinPercentage: {
-            type: Number
+        bestTime: {
+            beginner: Number,
+            intermediate: Number,
+            expert: Number
         },
-        expertWinPercentage: {
-            type: Number
-        },
-        beginnerBestTime: {
-            type: Number
-        },
-        intermediateBestTime: {
-            type: Number
-        },
-        expertBestTime: {
-            type: Number
+        bestMoves: {
+            beginner: Number,
+            intermediate: Number,
+            expert: Number
         },
         token: {
             type: String
