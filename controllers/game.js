@@ -25,6 +25,7 @@ export const winGame = async (req, res) => {
         currentGame.isWon = true;
         currentGame.moves = moves;
         currentGame.timeToComplete = time;
+        await currentGame.save();
         //If player plays for the first time or has achieved a new record, update bestTime and/or bestMoves
         const currentPlayer = await userModel.findById(req.user.user_id);
         if (!currentPlayer.bestTime[currentGame.gameLevel] || time < currentPlayer.bestTime[currentGame.gameLevel]) {
@@ -36,6 +37,20 @@ export const winGame = async (req, res) => {
         currentPlayer.gamesWon[currentGame.gameLevel].push(currentGame);
         await currentPlayer.save();
         res.status(201).send( `You have won!: ${currentGame}`);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+};
+
+export const loseGame = async (req, res) => {
+    const { id } = req.params;
+    const { moves, time } = req.body;
+    try {
+        const currentGame = await gameModel.findById(id);
+        currentGame.moves = moves;
+        currentGame.timeToComplete = time;
+        await currentGame.save();
+        res.status(201).send( `You have lost! Please try again.: ${currentGame}`);
     } catch (err) {
         res.status(400).json({ message: err.message });
     }
