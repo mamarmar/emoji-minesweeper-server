@@ -25,27 +25,7 @@ const userSchema = new mongoose.Schema(
         dateJoined: {
             type: Date
         },
-        totalPlayed: {
-            type: Number
-        },
         gamesPlayed: {
-            beginner: [{
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Game'
-            }],
-            intermediate: [{
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Game'
-            }],
-            expert: [{
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'Game'
-            }]
-        },
-        totalWon: {
-            type: Number
-        },
-        gamesWon: {
             beginner: [{
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'Game'

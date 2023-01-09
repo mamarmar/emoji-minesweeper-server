@@ -75,7 +75,7 @@ export const login = async (req, res) => {
         return;
       }
       //Validate if user exists in database
-      const user = await userModel.findOne({ username }).populate('gamesPlayed').populate('gamesWon');
+      const user = await userModel.findOne({ username });
       if (user && (await bcrypt.compare(password, user.password))) {
         //Create token
         const token = jwt.sign(
