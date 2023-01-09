@@ -115,7 +115,7 @@ export const getUser = async (req, res) => {
   }
 };
 
-//Get player stats
+//Get player stats for each level
 export const getPlayerStats = async (req, res) => {
   const { gameLevel } = req.query;
   try {
@@ -130,10 +130,10 @@ export const getPlayerStats = async (req, res) => {
     //If the user has played multiple games, total time and total moves are calculated using reduce
     } else if (currentPlayer.gamesPlayed[gameLevel].length > 1){
       totalTime = currentPlayer.gamesPlayed[gameLevel].reduce((acc, currVal) => {
-        acc.timeToComplete + currVal.timeToComplete;
+        return acc.timeToComplete + currVal.timeToComplete;
       });
       totalMoves = currentPlayer.gamesPlayed[gameLevel].reduce((acc, currVal) => {
-        acc.moves + currVal.moves;
+        return acc.moves + currVal.moves;
       })
     };
     const stats = {
@@ -149,3 +149,44 @@ export const getPlayerStats = async (req, res) => {
     res.status(404).json({ message: err.message });
   }
 };
+
+//Get total stats of all levels combined for single player
+export const getPlayerTotals = async (req, res) => {
+  try {
+    const currentPlayer = await userModel.findById(req.user.user_id)
+                                  .populate('gamesPlayed.beginner')
+                                  .populate('gamesPlayed.intermediate')
+                                  .populate('gamesPlayed.expert');
+    const gamesWon = (level) => {
+      let wonGames = currentPlayer.gamesPlayed[level].filter((game) => game.isWon === true)
+      return wonGames;
+    };
+    const total = (kind, level) => {
+      let totalTime = 0;
+      let totalMoves = 0;
+      //If the user has played only one game, total time and total moves are equal to the time and moves of that one game
+      if (currentPlayer.gamesPlayed[level].length === 1) {
+        totalTime = currentPlayer.gamesPlayed[level][0].timeToComplete;
+        totalMoves = currentPlayer.gamesPlayed[level][0].moves;
+      //If the user has played multiple games, total time and total moves are calculated using reduce
+      } else if (currentPlayer.gamesPlayed[level].length > 1) {
+        totalTime = currentPlayer.gamesPlayed[level].reduce((acc, currVal) => {
+          return acc.timeToComplete + currVal.timeToComplete;
+        });
+        totalMoves = currentPlayer.gamesPlayed[level].reduce((acc, currVal) => {
+          return acc.moves + currVal.moves;
+        });
+      }
+      return kind === 'time' ? totalTime : totalMoves;
+    }
+    const totalStats = {
+      totalGamesPlayed: currentPlayer.gamesPlayed.beginner.length + currentPlayer.gamesPlayed.intermediate.length + currentPlayer.gamesPlayed.expert.length ,
+      totalGamesWon: gamesWon('beginner').length + gamesWon('intermediate').length + gamesWon('expert').length,
+      totalTime: total('time', 'beginner') + total('time', 'intermediate') + total('time', 'expert'),
+      totalMoves: total('moves', 'beginner') + total('moves', 'intermediate') + total('moves', 'expert'),
+    };
+    res.status(200).send({ totalStats });
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+}
