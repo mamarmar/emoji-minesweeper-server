@@ -190,35 +190,3 @@ export const getPlayerTotals = async (req, res) => {
     res.status(404).json({ message: err.message });
   }
 };
-
-//Get platform stats for each level
-export const getPlatformStats = async (req, res) => {
-  const { gameLevel } = req.query;
-  try {
-    const allPlayers = await userModel.find().populate({ path: "gamesPlayed", populate: `${gameLevel}` });
-    const numOfGames = allPlayers.reduce((acc, currValue) => {
-      return acc.gamesPlayed[gameLevel].length + currValue.gamesPlayed[gameLevel].length;
-    });
-    //Create an array containing all won games of all players
-    const gamesWon = allPlayers.map(player => player.gamesPlayed[gameLevel].filter(game => game.isWon === true));
-    const bestTime = allPlayers.reduce((min, element) => {
-      return min.bestTime[gameLevel] < element.bestTime[gameLevel] ? min.bestTime[gameLevel] : element.bestTime[gameLevel];
-    });
-    const bestMoves = allPlayers.reduce((min, element) => {
-      return min.bestMoves[gameLevel] < element.bestMoves[gameLevel] ? min.bestMoves[gameLevel] : element.bestMoves[gameLevel];
-    });
-    const platformStats = {
-      gamesPlayed: numOfGames,
-      gamesWon: gamesWon.length,
-      bestTime: bestTime,
-      bestMoves: bestMoves,
-      totalTime: 0,
-      totalMoves: 0
-    };
-    res.status(200).send({ platformStats });
-  } catch (err) {
-    res.status(404).json({ message: err.message });
-  }
-}
-
-//Get total stats of all levels combined for the whole platform
