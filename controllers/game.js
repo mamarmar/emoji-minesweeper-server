@@ -70,7 +70,7 @@ export const getPlatformStats = async (req, res) => {
       }
     };
     const total = (kind) => { //kind can either be timeToComplete or moves
-      //If no games have been played across the platform, total time and best moves should be equal to 0
+      //If no games have been played across the platform, total time and total moves should be equal to 0
       if (!allGamesOfGivenLevel.length) {
         return 0;
       //If only one game has been played across the platform, total time and moves are equal to the time and moves this game took to complete
@@ -103,7 +103,7 @@ export const getPlatformTotals = async (req, res) => {
     const allGames = await gameModel.find();
     const allUsers = await userModel.find();
     const total = (kind) => { //kind can either be timeToComplete or moves
-      //If no games have been played across the platform, total time and best moves should be equal to 0
+      //If no games have been played across the platform, total time and total moves should be equal to 0
       if (!allGames.length) {
         return 0;
       //If only one game has been played across the platform, total time and moves are equal to the time and moves this game took to complete

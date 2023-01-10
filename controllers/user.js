@@ -121,28 +121,27 @@ export const getPlayerStats = async (req, res) => {
   try {
     const currentPlayer = await userModel.findById(req.user.user_id).populate({ path: "gamesPlayed", populate: `${gameLevel}` });
     const gamesWon = currentPlayer.gamesPlayed[gameLevel].filter((game) => game.isWon === true);
-    let totalTime = 0;
-    let totalMoves = 0;
-    //If the user has played only one game, total time and total moves are equal to the time and moves of that one game
-    if (currentPlayer.gamesPlayed[gameLevel].length === 1){
-      totalTime = currentPlayer.gamesPlayed[gameLevel][0].timeToComplete
-      totalMoves = currentPlayer.gamesPlayed[gameLevel][0].moves
-    //If the user has played multiple games, total time and total moves are calculated using reduce
-    } else if (currentPlayer.gamesPlayed[gameLevel].length > 1){
-      totalTime = currentPlayer.gamesPlayed[gameLevel].reduce((acc, currVal) => {
-        return acc.timeToComplete + currVal.timeToComplete;
-      });
-      totalMoves = currentPlayer.gamesPlayed[gameLevel].reduce((acc, currVal) => {
-        return acc.moves + currVal.moves;
-      })
+    const total = (kind) => { //kind can either be timeToComplete or moves
+      //If no games have been played by the user, total time and total moves should be equal to 0
+      if (currentPlayer.gamesPlayed[gameLevel].length === 0) {
+        return 0;
+      //If the user has played only one game, total time and total moves are equal to the time and moves of that one game
+      } else if (currentPlayer.gamesPlayed[gameLevel].length === 1) {
+        return currentPlayer.gamesPlayed[gameLevel][0][kind];
+        //If the user has played multiple games, total time and total moves are calculated using reduce
+      } else {
+        return currentPlayer.gamesPlayed[gameLevel].reduce((acc, currVal) => {
+          return acc + currVal[kind];
+        }, 0)
+      }
     };
     const stats = {
       gamesPlayed: currentPlayer.gamesPlayed[gameLevel].length,
       gamesWon: gamesWon.length,
-      bestTime: currentPlayer.bestTime[gameLevel],
-      bestMoves: currentPlayer.bestMoves[gameLevel],
-      totalTime: totalTime,
-      totalMoves: totalMoves
+      bestTime: currentPlayer.bestTime[gameLevel] ? currentPlayer.bestTime[gameLevel] : "N/A",
+      bestMoves: currentPlayer.bestMoves[gameLevel] ? currentPlayer.bestMoves[gameLevel] : "N/A",
+      totalTime: total("timeToComplete"),
+      totalMoves: total("moves")
     };
     res.status(200).send({ stats });
   } catch (err) {
@@ -161,28 +160,24 @@ export const getPlayerTotals = async (req, res) => {
       let wonGames = currentPlayer.gamesPlayed[level].filter((game) => game.isWon === true)
       return wonGames;
     };
-    const total = (kind, level) => {
-      let totalTime = 0;
-      let totalMoves = 0;
+    const total = (kind, level) => { //kind can either be timeToComplete or moves and level can be beginner | intermediate | expert
+      //If no games have been played by the user, total time and total moves should be equal to 0
+      if (currentPlayer.gamesPlayed[level].length === 0) {
+        return 0;
       //If the user has played only one game, total time and total moves are equal to the time and moves of that one game
-      if (currentPlayer.gamesPlayed[level].length === 1) {
-        totalTime = currentPlayer.gamesPlayed[level][0].timeToComplete;
-        totalMoves = currentPlayer.gamesPlayed[level][0].moves;
+      } else if (currentPlayer.gamesPlayed[level].length === 1) {
+        return currentPlayer.gamesPlayed[level][0][kind];
       //If the user has played multiple games, total time and total moves are calculated using reduce
       } else if (currentPlayer.gamesPlayed[level].length > 1) {
-        totalTime = currentPlayer.gamesPlayed[level].reduce((acc, currVal) => {
-          return acc.timeToComplete + currVal.timeToComplete;
-        });
-        totalMoves = currentPlayer.gamesPlayed[level].reduce((acc, currVal) => {
-          return acc.moves + currVal.moves;
-        });
+        return currentPlayer.gamesPlayed[level].reduce((acc, currVal) => {
+          return acc + currVal[kind];
+        }, 0);
       }
-      return kind === 'time' ? totalTime : totalMoves;
     };
     const totalStats = {
       totalGamesPlayed: currentPlayer.gamesPlayed.beginner.length + currentPlayer.gamesPlayed.intermediate.length + currentPlayer.gamesPlayed.expert.length ,
       totalGamesWon: gamesWon('beginner').length + gamesWon('intermediate').length + gamesWon('expert').length,
-      totalTime: total('time', 'beginner') + total('time', 'intermediate') + total('time', 'expert'),
+      totalTime: total('timeToComplete', 'beginner') + total('timeToComplete', 'intermediate') + total('timeToComplete', 'expert'),
       totalMoves: total('moves', 'beginner') + total('moves', 'intermediate') + total('moves', 'expert'),
     };
     res.status(200).send({ totalStats });
