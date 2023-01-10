@@ -138,6 +138,7 @@ export const getPlayerStats = async (req, res) => {
     const stats = {
       gamesPlayed: currentPlayer.gamesPlayed[gameLevel].length,
       gamesWon: gamesWon.length,
+      winPercentage: Math.round(gamesWon.length / currentPlayer.gamesPlayed[gameLevel].length * 10000) / 10000,
       bestTime: currentPlayer.bestTime[gameLevel] ? currentPlayer.bestTime[gameLevel] : "N/A",
       bestMoves: currentPlayer.bestMoves[gameLevel] ? currentPlayer.bestMoves[gameLevel] : "N/A",
       totalTime: total("timeToComplete"),
@@ -160,6 +161,8 @@ export const getPlayerTotals = async (req, res) => {
       let wonGames = currentPlayer.gamesPlayed[level].filter((game) => game.isWon === true)
       return wonGames;
     };
+    const numOfGamesPlayed = currentPlayer.gamesPlayed.beginner.length + currentPlayer.gamesPlayed.intermediate.length + currentPlayer.gamesPlayed.expert.length;
+    const numOfGamesWon = gamesWon('beginner').length + gamesWon('intermediate').length + gamesWon('expert').length;
     const total = (kind, level) => { //kind can either be timeToComplete or moves and level can be beginner | intermediate | expert
       //If no games have been played by the user, total time and total moves should be equal to 0
       if (currentPlayer.gamesPlayed[level].length === 0) {
@@ -175,8 +178,9 @@ export const getPlayerTotals = async (req, res) => {
       }
     };
     const totalStats = {
-      totalGamesPlayed: currentPlayer.gamesPlayed.beginner.length + currentPlayer.gamesPlayed.intermediate.length + currentPlayer.gamesPlayed.expert.length ,
-      totalGamesWon: gamesWon('beginner').length + gamesWon('intermediate').length + gamesWon('expert').length,
+      totalGamesPlayed: numOfGamesPlayed ,
+      totalGamesWon: numOfGamesWon,
+      winPercentage: Math.round(numOfGamesWon / numOfGamesPlayed * 10000) / 10000,
       totalTime: total('timeToComplete', 'beginner') + total('timeToComplete', 'intermediate') + total('timeToComplete', 'expert'),
       totalMoves: total('moves', 'beginner') + total('moves', 'intermediate') + total('moves', 'expert'),
     };

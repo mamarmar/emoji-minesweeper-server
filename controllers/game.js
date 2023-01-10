@@ -54,17 +54,17 @@ export const getPlatformStats = async (req, res) => {
   const { gameLevel } = req.query;
   try {
     const allGamesOfGivenLevel = await gameModel.find({ gameLevel: gameLevel });
-    const wonGames = allGamesOfGivenLevel.filter((game) => game.isWon === true);
+    const gamesWon = allGamesOfGivenLevel.filter((game) => game.isWon === true);
     const best = (kind) => { //kind can either be timeToComplete or moves
       //If no games have been won across the platform, best time and best moves should be unavailable
-      if (!wonGames.length) {
+      if (!gamesWon.length) {
         return "N/A";
       //If only one game has been won across the platform, best time and moves are equal to the time and moves this game took to complete
-      } else if (wonGames.length === 1) {
-        return wonGames[0][kind];
+      } else if (gamesWon.length === 1) {
+        return gamesWon[0][kind];
       //If there are multiple won games across the platform, the best time and moves will be calculated using reduce
       } else {
-        return wonGames.reduce((min, element) => {
+        return gamesWon.reduce((min, element) => {
           return min[kind] < element[kind] ? min[kind] : element[kind];
         });
       }
@@ -85,7 +85,8 @@ export const getPlatformStats = async (req, res) => {
     };
     const platformStats = {
       gamesPlayed: allGamesOfGivenLevel.length,
-      gamesWon: wonGames.length,
+      gamesWon: gamesWon.length,
+      winningPercentage: Math.round(gamesWon.length / allGamesOfGivenLevel.length * 10000) / 10000,
       bestTime: best("timeToComplete"),
       bestMoves: best("moves"),
       totalTime: total("timeToComplete"),
@@ -102,6 +103,7 @@ export const getPlatformTotals = async (req, res) => {
   try {
     const allGames = await gameModel.find();
     const allUsers = await userModel.find();
+    const gamesWon = allGames.filter(game => game.isWon === true).length;
     const total = (kind) => { //kind can either be timeToComplete or moves
       //If no games have been played across the platform, total time and total moves should be equal to 0
       if (!allGames.length) {
@@ -119,7 +121,8 @@ export const getPlatformTotals = async (req, res) => {
     const totalStats = {
       registeredPlayers: allUsers.length,
       totalGamesPlayed: allGames.length,
-      totalGamesWon: allGames.filter(game => game.isWon === true).length,
+      totalGamesWon: gamesWon,
+      winningPercentage: Math.round(gamesWon / allGames.length * 10000) / 10000,
       totalTime: total("timeToComplete"),
       totalMoves: total("moves")
     };
