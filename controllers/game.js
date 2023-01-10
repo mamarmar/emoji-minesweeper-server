@@ -55,28 +55,32 @@ export const getPlatformStats = async (req, res) => {
   try {
     const allGamesOfGivenLevel = await gameModel.find({ gameLevel: gameLevel });
     const wonGames = allGamesOfGivenLevel.filter((game) => game.isWon === true);
-    const best = (kind) => {
+    const best = (kind) => { //kind can either be timeToComplete or moves
+      //If no games have been won across the platform, best time and best moves should be unavailable
       if (!wonGames.length) {
         return "N/A";
+      //If only one game has been won across the platform, best time and moves are equal to the time and moves this game took to complete
       } else if (wonGames.length === 1) {
         return wonGames[0][kind];
+      //If there are multiple won games across the platform, the best time and moves will be calculated using reduce
       } else {
-        const bestOfKind = wonGames.reduce((min, element) => {
+        return wonGames.reduce((min, element) => {
           return min[kind] < element[kind] ? min[kind] : element[kind];
         });
-        return bestOfKind;
       }
     };
-    const total = (kind) => {
+    const total = (kind) => { //kind can either be timeToComplete or moves
+      //If no games have been played across the platform, total time and best moves should be equal to 0
       if (!allGamesOfGivenLevel.length) {
         return 0;
+      //If only one game has been played across the platform, total time and moves are equal to the time and moves this game took to complete
       } else if (allGamesOfGivenLevel.length === 1) {
         return allGamesOfGivenLevel[0][kind];
+      //If multiple games have been played across the platform, the total time and moves will be calculated using reduce
       } else {
-        const totalOfKind = allGamesOfGivenLevel.reduce((acc, currVal) => {
-          return acc[kind] + currVal[kind];
-        });
-        return totalOfKind;
+        return allGamesOfGivenLevel.reduce((acc, currVal) => {
+          return acc + currVal[kind];
+        }, 0);
       }
     };
     const platformStats = {
@@ -94,3 +98,33 @@ export const getPlatformStats = async (req, res) => {
 };
 
 //Get total stats of all levels combined for the whole platform
+export const getPlatformTotals = async (req, res) => {
+  try {
+    const allGames = await gameModel.find();
+    const allUsers = await userModel.find();
+    const total = (kind) => { //kind can either be timeToComplete or moves
+      //If no games have been played across the platform, total time and best moves should be equal to 0
+      if (!allGames.length) {
+        return 0;
+      //If only one game has been played across the platform, total time and moves are equal to the time and moves this game took to complete
+      } else if (allGames.length === 1) {
+        return allGames[0][kind];
+      //If multiple games have been played across the platform, the total time and moves will be calculated using reduce
+      } else {
+        return allGames.reduce((acc, currVal) => {
+          return acc + currVal[kind];
+        }, 0);
+      }
+    };
+    const totalStats = {
+      registeredPlayers: allUsers.length,
+      totalGamesPlayed: allGames.length,
+      totalGamesWon: allGames.filter(game => game.isWon === true).length,
+      totalTime: total("timeToComplete"),
+      totalMoves: total("moves")
+    };
+    res.status(201).send({ totalStats });
+  } catch (err) {
+      res.status(404).json({ message: err.message });
+  }
+};
