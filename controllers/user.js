@@ -189,3 +189,20 @@ export const getPlayerTotals = async (req, res) => {
     res.status(404).json({ message: err.message });
   }
 };
+
+//Get ranking of best moves for each level
+export const getBestMovesRanking = async (req, res) => {
+  const { gameLevel } = req.query;
+  try {
+    const allUsers = await userModel.find();
+    //Get only those users who have played at least 2 games at given level
+    const someUsers = allUsers.filter(user => user.gamesPlayed[gameLevel].length > 0);
+    const sortedUsers = someUsers.sort((a, b) => a.bestMoves[gameLevel] - b.bestMoves[gameLevel]);
+    const displayedUsers = sortedUsers.map(user => {
+      return {username: user.username, bestMoves: user.bestMoves[gameLevel]}
+    })
+    res.status(200).send({ displayedUsers });
+  } catch (err) {
+    res.status(404).json({ message: err.message });
+  }
+};
