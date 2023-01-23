@@ -22,8 +22,11 @@ export const signup = async (req, res) => {
     }
     //Encrypt password
     const encryptedPassword = await bcrypt.hash(password, 10);
+    //Only users with specific usernames are admins
+    let isAdmin = username === "michael" || username === "margarita" ? true : false;
     //Create user in database
     const user = await userModel.create({
+      isAdmin: isAdmin,
       username,
       password: encryptedPassword,
       country,
@@ -107,6 +110,24 @@ export const getUser = async (req, res) => {
     res.status(404).json({ message: err.message });
   }
 };
+
+//Delete user
+export const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(id))
+    return res.status(404).send(`No user with id: ${id}`);
+  try {
+    const currentUser = await userModel.findById(req.user.user_id);
+    //Users can only be deleted by admins or themselves
+    if (currentUser.isAdmin || id === req.user.user_id) {
+      await userModel.findByIdAndRemove(id);
+    } else {
+      return res.status(401).send("You are not authorized to delete this user");
+    }
+  } catch (err) {
+      res.status(404).json({ message: err.message });
+  }
+}
 
 //Get single player stats for each level
 export const getPlayerStats = async (req, res) => {

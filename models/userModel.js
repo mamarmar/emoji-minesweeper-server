@@ -3,6 +3,10 @@ import validator from "validator";
 
 const userSchema = new mongoose.Schema(
     {
+        isAdmin: {
+            type: String,
+            default: false
+        },
         username: {
             type: String,
             required: [true, 'Username is required'],

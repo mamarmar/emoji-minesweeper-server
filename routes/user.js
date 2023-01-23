@@ -1,5 +1,5 @@
 import express from "express";
-import { signup, login, logout, getUser, getPlayerStats, getPlayerTotals, getBestMovesRanking, getBestTimeRanking } from "../controllers/user.js";
+import { signup, login, logout, getUser, deleteUser, getPlayerStats, getPlayerTotals, getBestMovesRanking, getBestTimeRanking } from "../controllers/user.js";
 import { auth } from "../middleware/auth.js";
 
 const router = express.Router();
@@ -12,8 +12,9 @@ router.get("/stats", auth, getPlayerStats);
 router.get("/totalstats", auth, getPlayerTotals);
 router.get("/bestmoves", auth, getBestMovesRanking);
 router.get("/besttime", auth, getBestTimeRanking);
-
 router.get("/:id", auth, getUser);
+
+router.delete(":/id", auth, deleteUser);
 
 
 export default router;
