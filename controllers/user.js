@@ -121,6 +121,7 @@ export const deleteUser = async (req, res) => {
     //Users can only be deleted by admins or themselves
     if (currentUser.isAdmin || id === req.user.user_id) {
       await userModel.findByIdAndRemove(id);
+      res.status(201).json({ message: "User deleted successfully." });
     } else {
       return res.status(401).send("You are not authorized to delete this user");
     }
